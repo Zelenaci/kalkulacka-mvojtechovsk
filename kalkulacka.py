@@ -3,13 +3,16 @@
 # Datum:   28.03.2022 08:31
 # Autor:   Marek Nožka, nozka <@t> spseol <d.t> cz
 ############################################################################
+from asyncio import events
+from inspect import Parameter
 import math
 from os.path import basename, splitext
 import tkinter as tk
+from traceback import print_tb
 
 # from tkinter import ttk
 
-zasobnik = []
+
 dva_operandy = {}
 dva_operandy["+"] = lambda a, b: a + b
 dva_operandy["-"] = lambda a, b: a - b
@@ -45,54 +48,83 @@ class Application(tk.Tk):
 
         super().__init__(className=self.name)
 
+        self.zasobnik = []
         self.var_entry = tk.IntVar()
         self.title(self.name)
         self.bind("<Escape>", self.quit)
         self.lbl = tk.Label(self, text="Kalkulačka")
-        self.lbl.pack()
+        self.lbl.grid(column=1)
         self.entry = tk.Entry(self, textvariable= self.var_entry)
-        self.entry.pack()
+        self.entry.grid()
         self.btn2 = tk.Button(self, text="Zapsat hodnotu", command=self.zpracuj)
-        self.btn2.pack()
+        self.btn2.grid()
+        self.btnUp = tk.Button(self, text="Hore nohy",command=self.posunUp)
+        self.btnUp.grid(row=1, column=2)
+        self.btnDown = tk.Button(self, text="Dole hlava",command=self.posunDown)
+        self.btnDown.grid(row=1, column=4)
+        self.listBox = tk.Listbox(self)
+        self.listBox.grid(row=1,column=1)
         self.btn = tk.Button(self, text="Quit", command=self.quit)
-        self.btn.pack()
+        self.btn.grid(column=1)
 
     def quit(self, event=None):
         super().quit()
 
 
-    def operace(self, token):
-        if token.upper() == "Q":
-            exit()
-        if token.upper() == "PI":
-            zasobnik.append(math.pi)
-        if token.upper() == "SW":
-            b = zasobnik.pop()
-            a = zasobnik.pop()
-            zasobnik.append(b)
-            zasobnik.append(a)
-        if token in dva_operandy.keys():
-            if len(zasobnik) >= 2:
-                b = zasobnik.pop()
-                a = zasobnik.pop()
-                zasobnik.append(dva_operandy[token](a, b))
-            else:
-                print("Nemám dost operandů!!!")
-        if token in jeden_operand.keys():
-            if len(zasobnik) >= 1:
-                a = zasobnik.pop()
-                zasobnik.append(jeden_operand[token](a))
-            else:
-                print("Nemám dost operandů!!!")
-
+    def operace(self, token, event=None):
+            token = str(self.entry.get())
+            if token.upper() == "Q":
+                exit()
+            if token.upper() == "PI":
+                self.zasobnik.append(math.pi)
+            if token.upper() == "SW":
+                b =  self.zasobnik.pop()
+                a =  self.zasobnik.pop()
+                self.zasobnik.append(b)
+                self.zasobnik.append(a)
+            if token in dva_operandy.keys():
+                if len(self.zasobnik) >= 2:
+                    b = self.zasobnik.pop()
+                    a = self.zasobnik.pop()
+                    self.zasobnik.append(dva_operandy[token](a, b))
+                else:
+                    print("Nemám dost operandů!!!")
+            if token in jeden_operand.keys():
+                if len(self.zasobnik) >= 1:
+                    a = self.zasobnik.pop()
+                    self.zasobnik.append(jeden_operand[token](a))
+                else:
+                    print("Nemám dost operandů!!!")
+            self.listBox.delete(0,tk.END)
+            for token in self.zasobnik:
+                self.listBox.insert(tk.END,token)
+                
 
     def zpracuj(self):
-        token = self.var_entry.get()
+        token = self.entry.get()
         try:
-            zasobnik.append(float(token))
+            self.zasobnik.append(float(token))
+            self.listBox.insert(tk.END,token)
         except ValueError:
-            operace(self,token)
+            self.operace(self,token)
+    
+    def posunUp(self):
+        active = self.listBox.get(tk.ACTIVE)
+        for index in self.listBox.curselection():
+            self.listBox.delete(index)
+            self.listBox.insert(index+1, active)
+        self.zasobnik.clear()
+        for item in self.listBox:
 
+    def posunDown(self):
+        active = self.listBox.get(tk.ACTIVE)
+        for index in self.listBox.curselection():
+            self.listBox.delete(index)
+            self.listBox.insert(index-1, active)
+        self.zasobnik.clear()
+        for item in self.listBox:
+            self.zasobnik.append(item)    
+    
 
 app = Application()
 app.mainloop()
