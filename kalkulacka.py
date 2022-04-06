@@ -112,6 +112,7 @@ class Application(tk.Tk):
     def posunUp(self):
         active = self.listBox.get(tk.ACTIVE)
         for index in self.listBox.curselection():
+<<<<<<< HEAD
             try:
                 self.listBox.delete(index)
                 self.listBox.insert(index+1, active)
@@ -122,11 +123,20 @@ class Application(tk.Tk):
                 print("krajní hondota nelze posunout")    
 
 
+=======
+            self.listBox.delete(index)
+            self.listBox.insert(index+1, active)
+        self.zasobnik.clear()
+        items = self.listBox.get(0,tk.END)
+        for item in items:
+            self.zpracuj(self, item)
+>>>>>>> 086a1ccb9424012c7e5e5c003e1e9b22709f427b
         
 
     def posunDown(self):
         active = self.listBox.get(tk.ACTIVE)
         for index in self.listBox.curselection():
+<<<<<<< HEAD
             try:    
                 self.listBox.delete(index)
                 self.listBox.insert(index-1, active)
@@ -135,6 +145,15 @@ class Application(tk.Tk):
                 self.zasobnik[index-1]= item
             except IndexError:
                 print("krajní hondota nelze posunout")    
+=======
+            self.listBox.delete(index)
+            self.listBox.insert(index-1, active)
+        self.zasobnik.clear()
+        items = self.listBox.get(0,tk.END)
+        for item in items:
+            self.zpracuj(self, item)
+    
+>>>>>>> 086a1ccb9424012c7e5e5c003e1e9b22709f427b
 
 app = Application()
 app.mainloop()
