@@ -56,11 +56,11 @@ class Application(tk.Tk):
         self.lbl.grid(column=1)
         self.entry = tk.Entry(self, textvariable= self.var_entry)
         self.entry.grid()
-        self.btn2 = tk.Button(self, text="Zapsat hodnotu", command=self.zpracuj)
+        self.btn2 = tk.Button(self, text="Zapsat hodnotu", command=self.fce)
         self.btn2.grid()
-        self.btnUp = tk.Button(self, text="Hore nohy",command=self.posunUp)
+        self.btnUp = tk.Button(self, text="Dolů",command=self.posunUp)
         self.btnUp.grid(row=1, column=2)
-        self.btnDown = tk.Button(self, text="Dole hlava",command=self.posunDown)
+        self.btnDown = tk.Button(self, text="Nahoru",command=self.posunDown)
         self.btnDown.grid(row=1, column=4)
         self.listBox = tk.Listbox(self)
         self.listBox.grid(row=1,column=1)
@@ -70,6 +70,8 @@ class Application(tk.Tk):
     def quit(self, event=None):
         super().quit()
 
+    def fce(self):
+        self.zpracuj(self.entry.get())
 
     def operace(self, token, event=None):
             token = str(self.entry.get())
@@ -78,8 +80,8 @@ class Application(tk.Tk):
             if token.upper() == "PI":
                 self.zasobnik.append(math.pi)
             if token.upper() == "SW":
-                b =  self.zasobnik.pop()
-                a =  self.zasobnik.pop()
+                a =  self.listBox.get(tk.END)
+                b =  self.listBox.get(tk.END-1)
                 self.zasobnik.append(b)
                 self.zasobnik.append(a)
             if token in dva_operandy.keys():
@@ -100,8 +102,7 @@ class Application(tk.Tk):
                 self.listBox.insert(tk.END,token)
                 
 
-    def zpracuj(self):
-        token = self.entry.get()
+    def zpracuj(self, token,event=None):
         try:
             self.zasobnik.append(float(token))
             self.listBox.insert(tk.END,token)
@@ -111,21 +112,29 @@ class Application(tk.Tk):
     def posunUp(self):
         active = self.listBox.get(tk.ACTIVE)
         for index in self.listBox.curselection():
-            self.listBox.delete(index)
-            self.listBox.insert(index+1, active)
-        self.zasobnik.clear()
-        for item in self.listBox:
+            try:
+                self.listBox.delete(index)
+                self.listBox.insert(index+1, active)
+                item = self.zasobnik[index]
+                self.zasobnik[index] = self.zasobnik[index+1]
+                self.zasobnik[index+1]= item
+            except IndexError:
+                print("krajní hondota nelze posunout")    
+
+
+        
 
     def posunDown(self):
         active = self.listBox.get(tk.ACTIVE)
         for index in self.listBox.curselection():
-            self.listBox.delete(index)
-            self.listBox.insert(index-1, active)
-        self.zasobnik.clear()
-        for item in self.listBox:
-            self.zasobnik.append(item)    
-    
+            try:    
+                self.listBox.delete(index)
+                self.listBox.insert(index-1, active)
+                item = self.zasobnik[index]
+                self.zasobnik[index] = self.zasobnik[index-1]
+                self.zasobnik[index-1]= item
+            except IndexError:
+                print("krajní hondota nelze posunout")    
 
 app = Application()
 app.mainloop()
-
